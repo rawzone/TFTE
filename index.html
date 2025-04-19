@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Torrent Tracker Extractor - Extract Trackers from .torrent Files</title>
+    <title>Torrent File Tracker Extractor - Extract Trackers from .torrent Files</title>
 
     <!-- Include TailwindCSS -->
     <link href="dist/app.css" rel="stylesheet">
@@ -16,7 +16,7 @@
     <meta name="author" content="rawzone (Hans Nielsen)">
 
     <!-- Open Graph Meta Tags (for social media sharing) -->
-    <meta property="og:title" content="Torrent Tracker Extractor - Extract Trackers from .torrent Files">
+    <meta property="og:title" content="Torrent File Tracker Extractor - Extract Trackers from .torrent Files">
     <meta property="og:description" content="Extract torrent trackers from .torrent files easily with this free online tool. Supports UDP, HTTP, and HTTPS trackers.">
     <meta property="og:url" content="https://rawzone.github.io/TFTE">
     <meta property="og:type" content="website">
@@ -25,23 +25,41 @@
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Torrent Tracker Extractor - Extract Trackers from .torrent Files">
+    <meta name="twitter:title" content="Torrent File Tracker Extractor - Extract Trackers from .torrent Files">
     <meta name="twitter:description" content="Extract torrent trackers from .torrent files easily with this free online tool. Supports UDP, HTTP, and HTTPS trackers.">
-    <meta name="twitter:image" content="https://rawzone.github.io/TFTE/dist/tfte-screenshot.png"> 
+    <meta name="twitter:image" content="https://rawzone.github.io/TFTE/dist/tfte-screenshot.png">
 </head>
 
-<body class="bg-gray-100 min-h-screen p-8">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Torrent File - Tracker Extractor</h1>
+<body class="bg-gray-100 dark:bg-gray-800 min-h-screen">
+    <nav class="bg-white text-gray-800 dark:bg-gray-900 py-4 border-b border-gray-200 dark:border-gray-900">
+        <div class="max-w-4xl mx-auto px-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-gray-800 dark:text-gray-200 font-bold text-lg leading-none">Torrent File Tracker Extractor</h1>
+                <button id="toggleThemeButton" class="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onclick="toggleTheme()">
+                    <div id="lightThemeIcon" class="hidden dark:block">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                        </svg>
+                    </div>
+                    <div id="darkThemeIon" class="dark:hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-        <div id="dropZone" class="flex items-center justify-center border-dashed border-2 border-gray-400 rounded-lg p-8 text-center cursor-pointer"
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md mt-8 p-6">
+        <div id="dropZone" class="flex items-center justify-center border-dashed border-2 border-gray-400 rounded-lg p-8 text-center cursor-pointer group"
             style="min-height: 200px;">
             <!-- Hidden file input -->
             <input type="file" id="torrentFile" accept=".torrent" hidden>
 
             <div class="space-y-2">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p class="text-gray-600">Drag and drop your .torrent file here, or click to select</p>
@@ -54,6 +72,11 @@
                 <!-- Trackers will be displayed here -->
             </div>
         </div>
+    </div>
+
+    <div class="text-center max-w-4xl mx-auto text-sm mt-4 text-gray-600 dark:text-gray-400">
+        <div>Keep in mind that <span class="cursor-help" title="Torrent File Tracker Extractor">TFTE</span> will <strong>NEVER</strong> upload or share anything with anyone!</div>
+        <div class="mt-1">All processing happens local in your browser.</div>
     </div>
 
     <script>
@@ -190,7 +213,39 @@
                 .replace('"', '&quot;')
                 .replace("'", '&#39;');
         }
+
+        // Function to set color theme in localStorage
+        function setTheme(themeName) {
+            localStorage.setItem('theme', themeName);
+            document.querySelector("html").className = themeName;
+        }
+
+        // Default color theme - Sets on first page load
+        (function () {
+            if (localStorage.getItem('theme')) {
+                setTheme(localStorage.getItem('theme'))
+            } else {
+                setTheme('light')
+            }
+        })();
+
+        // Function to toggle color theme
+        function toggleTheme() {
+            HTMLELM = document.querySelector("html");
+            currentTheme = localStorage.getItem("theme");
+
+            if (currentTheme == "light") {
+                HTMLELM.classList.remove("light");
+                HTMLELM.classList.add("dark");
+
+                setTheme("dark")
+            } else if (currentTheme == "dark") {
+                HTMLELM.classList.remove("dark");
+                HTMLELM.classList.add("light");
+                
+                setTheme("light")
+            }
+        }
     </script>
 </body>
-
 </html>
