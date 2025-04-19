@@ -1,0 +1,15 @@
+{
+  "name": "torrent-file-tracker-extractor",
+  "version": "1.0.0",
+  "description": "Extract listed torrent trackers from a .torrent-file.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rawzone (Hans Nielsen)",
+  "license": "ISC",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.4",
+    "tailwindcss": "^4.1.4"
+  }
+}

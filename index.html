@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torrent Tracker Extractor</title>
+    <!-- Include TailwindCSS -->
+    <link href="dist/app.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Torrent File - Tracker Extractor</h1>
+
+        <div id="dropZone" class="flex items-center justify-center border-dashed border-2 border-gray-400 rounded-lg p-8 text-center cursor-pointer"
+            style="min-height: 200px;">
+            <!-- Hidden file input -->
+            <input type="file" id="torrentFile" accept=".torrent" hidden>
+
+            <div class="space-y-2">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="text-gray-600">Drag and drop your .torrent file here, or click to select</p>
+            </div>
+        </div>
+
+        <div id="trackersList" class="hidden mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Extracted Trackers:</h2>
+            <div id="trackerContent" class="space-y-1">
+                <!-- Trackers will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('torrentFile');
+        const trackersList = document.getElementById('trackersList');
+
+        // Make the drop zone clickable to open the file dialog
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Change the drop zone appearance when dragging over
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('border-blue-500');
+            }, false);
+        });
+
+        ['dragleave'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('border-blue-500');
+            }, false);
+        });
+
+        // Handle file selection via click or drag-and-drop
+        [fileInput, dropZone].forEach(element => {
+            element.addEventListener('drop', handleDrop, false);
+            element.addEventListener('change', (e) => {
+                const files = e.target.files;
+                processFiles(files);
+            }, false);
+        });
+
+        async function processFiles(files) {
+            try {
+                for (const file of files) {
+                    if (!file.name.endsWith('.torrent')) {
+                        trackersList.innerHTML = `
+                            <p class="text-red-500">Please upload a .torrent file</p>
+                        `;
+                        return;
+                    }
+
+                    const content = await readTorrentFile(file);
+                    extractTrackers(content);
+                }
+            } catch (error) {
+                console.error('Error processing torrent:', error);
+                trackersList.innerHTML = `
+                    <p class="text-red-500">Error extracting trackers: ${error.message}</p>
+                `;
+            }
+        }
+
+        async function readTorrentFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Convert the binary data to an ArrayBuffer
+                    const arrayBuffer = e.target.result;
+                    resolve(arrayBuffer);
+                };
+                reader.onerror = () => reject(new Error('Failed to read the file.'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            processFiles(files);
+        }
+
+        function extractTrackers(content) {
+            // Convert binary content to UTF-8 string
+            const decoder = new TextDecoder();
+            const utf8Content = decoder.decode(new Uint8Array(content));
+
+            // Use improved regular expression to find all tracker URLs in the content
+            const trackerRegex = /(?:udp|http|https):\/\/[^/]+\d*[/?&]?[a-z0-9]+/g;
+
+            const foundTrackers = [];
+            let match;
+
+            while ((match = trackerRegex.exec(utf8Content)) !== null) {
+                // Check if the matched string is a valid tracker URL
+                if (isValidTracker(match[0])) {
+                    foundTrackers.push(match[0]);
+                }
+            }
+
+            if (foundTrackers.length === 0) {
+                trackersList.innerHTML = `
+                    <p class="text-gray-500">No trackers found in this torrent.</p>
+                `;
+            } else {
+                const trackerContent = document.getElementById('trackerContent');
+                trackerContent.innerHTML = foundTrackers.map(tracker => `
+                    <div class="bg-gray-50 p-3 rounded-lg text-sm font-mono">
+                        ${escapeHtml(tracker)}
+                    </div>
+                `).join('');
+
+                trackersList.classList.remove('hidden');
+            }
+        }
+
+        // Helper function to validate tracker URLs
+        function isValidTracker(url) {
+            const validProtocols = ['udp', 'http', 'https'];
+            const urlParts = url.split('://');
+            return validProtocols.includes(urlParts[0]) &&
+                (url.includes('/announce') || url.includes('track') || url.includes('tracker'));
+        }
+
+        // Helper function to escape HTML characters
+        function escapeHtml(text) {
+            return text.replace(/&/g, '&amp;')
+                .replace(/>/g, '&gt;')
+                .replace(/</g, '&lt;')
+                .replace('"', '&quot;')
+                .replace("'", '&#39;');
+        }
+    </script>
+</body>
+
+</html>
