@@ -17,3 +17,4 @@ Will never upload or share anything with anyone! All processing happens local in
 - [ ] Maybe add author / Copyright footer?
 - [ ] Switch to Vite for TailwindCSS development.
   - [ ] Minify etc. assets with Vite.
+- [ ] Add support for bulk / multi .torrent file processing.
